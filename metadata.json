@@ -1,0 +1,6 @@
+{
+  "name": "SA Tender Assist",
+  "description": "A native digital PKI document signer and interactive SBD form filler for South African public procurement compliance, with local WebCrypto key generation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

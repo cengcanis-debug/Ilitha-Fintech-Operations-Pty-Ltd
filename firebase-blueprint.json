@@ -1,0 +1,84 @@
+{
+  "collections": {
+    "certificates": {
+      "schema": {
+        "id": "string",
+        "subjectName": "string",
+        "organization": "string",
+        "designation": "string",
+        "email": "string",
+        "createdIso": "string",
+        "expiresIso": "string",
+        "publicKeyThumbprint": "string",
+        "publicKeyPem": "string",
+        "privateKeyPem": "string",
+        "saIdNumber": "string",
+        "keySize": "number",
+        "validityYears": "number",
+        "userId": "string",
+        "updatedAt": "timestamp"
+      },
+      "rules": {
+        "read": "true",
+        "write": "true"
+      }
+    },
+    "signed_documents": {
+      "schema": {
+        "id": "string",
+        "fileName": "string",
+        "signedAtIso": "string",
+        "sha256Hash": "string",
+        "bidNumber": "string",
+        "bidDescription": "string",
+        "procuringInstitution": "string",
+        "bidderName": "string",
+        "userId": "string",
+        "updatedAt": "timestamp"
+      },
+      "rules": {
+        "read": "true",
+        "write": "true"
+      }
+    },
+    "partner_registrations": {
+      "schema": {
+        "id": "string",
+        "companyName": "string",
+        "contactName": "string",
+        "email": "string",
+        "categories": "string",
+        "targetProvinces": "string",
+        "subscriptionTier": "string",
+        "agreedSplit": "number",
+        "paidUpfrontZar": "number",
+        "status": "string",
+        "paymentReference": "string",
+        "userId": "string",
+        "updatedAt": "timestamp"
+      },
+      "rules": {
+        "read": "true",
+        "write": "true"
+      }
+    },
+    "developer_ip_manifests": {
+      "schema": {
+        "id": "string",
+        "devOwnerName": "string",
+        "appVersion": "string",
+        "sha256Hash": "string",
+        "signedManifestPem": "string",
+        "registeredAtIso": "string",
+        "fileCount": "number",
+        "userId": "string",
+        "isAnonymizedForPOPIA": "boolean",
+        "updatedAt": "timestamp"
+      },
+      "rules": {
+        "read": "true",
+        "write": "true"
+      }
+    }
+  }
+}
