@@ -23,7 +23,8 @@ import {
 import { DigitalCertificate } from './types';
 import { importKeyFromPem } from './utils/crypto';
 import { loadCertificateFromCloud, loadSignedDocumentsFromCloud } from './services/firebase';
-import { Cloud, History, RefreshCw } from 'lucide-react';
+import { createSnapshot } from './utils/indexedDb';
+import { Cloud, History, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 // Subcomponents
 import CertificateManager from './components/CertificateManager';
@@ -105,6 +106,48 @@ export default function App() {
     window.addEventListener('sata_switch_tab', handleSwitch);
     return () => window.removeEventListener('sata_switch_tab', handleSwitch);
   }, []);
+
+  // Periodic System Checkpoint Trigger for Document Repository Changes
+  const [showCheckpointBanner, setShowCheckpointBanner] = useState(false);
+  const [checkpointDetails, setCheckpointDetails] = useState({ currentCount: 0, lastCount: 0 });
+
+  useEffect(() => {
+    // Check every 30 seconds for significant changes in local document repository history
+    const interval = setInterval(() => {
+      try {
+        const localHistoryStr = localStorage.getItem('sata_signed_documents_local');
+        const historyList = localHistoryStr ? JSON.parse(localHistoryStr) : [];
+        const currentCount = historyList.length;
+
+        const lastCheckpointStr = localStorage.getItem('sata_last_checkpoint_count');
+        const lastCount = lastCheckpointStr ? parseInt(lastCheckpointStr, 10) : 0;
+
+        if (currentCount > lastCount && currentCount > 0) {
+          setCheckpointDetails({ currentCount, lastCount });
+          setShowCheckpointBanner(true);
+        }
+      } catch (err) {
+        console.error('System Checkpoint check error:', err);
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleSaveCheckpointSnapshot = async () => {
+    try {
+      const label = `System Checkpoint (${new Date().toLocaleTimeString()})`;
+      await createSnapshot(label, true);
+      addLog(`System Checkpoint: Successfully saved local Time Machine snapshot "${label}".`, 'success');
+      
+      const localHistoryStr = localStorage.getItem('sata_signed_documents_local');
+      const historyList = localHistoryStr ? JSON.parse(localHistoryStr) : [];
+      localStorage.setItem('sata_last_checkpoint_count', String(historyList.length));
+      setShowCheckpointBanner(false);
+    } catch (err: any) {
+      addLog(`System Checkpoint snapshot failed: ${err.message}`, 'error');
+    }
+  };
 
   // Attempt to restore saved key pairs from localStorage or Firebase Firestore Cloud Sync
   useEffect(() => {
@@ -285,6 +328,47 @@ export default function App() {
       {/* Main Content Area: Document Workspace */}
       <main className="flex-1 flex flex-col bg-slate-50 md:overflow-hidden min-h-[500px] md:min-h-0">
         
+        {/* System Checkpoint Notification Banner */}
+        {showCheckpointBanner && (
+          <div className="bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-center justify-between shrink-0 animate-fadeIn">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center shrink-0">
+                <AlertCircle className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="text-xs font-extrabold text-amber-900 font-mono uppercase tracking-wide">
+                  System Checkpoint Trigger: Significant Document Activity Detected
+                </h4>
+                <p className="text-[11px] text-amber-700">
+                  New records added to your signing repository ({checkpointDetails.currentCount} total). Would you like to save a local Time Machine snapshot now?
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleSaveCheckpointSnapshot}
+                className="bg-amber-900 hover:bg-amber-950 text-white px-3 py-1.5 rounded font-mono text-[10px] font-bold uppercase transition-colors cursor-pointer flex items-center gap-1.5"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                Save Snapshot Now
+              </button>
+              <button
+                onClick={() => {
+                  try {
+                    const localHistoryStr = localStorage.getItem('sata_signed_documents_local');
+                    const historyList = localHistoryStr ? JSON.parse(localHistoryStr) : [];
+                    localStorage.setItem('sata_last_checkpoint_count', String(historyList.length));
+                  } catch {}
+                  setShowCheckpointBanner(false);
+                }}
+                className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1.5 rounded font-mono text-[10px] font-bold uppercase transition-colors cursor-pointer"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Workspace Sub-Header */}
         <header className="h-12 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">

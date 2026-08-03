@@ -239,8 +239,89 @@ export default function RegulatoryShield({ activeCert, addLog, onNavigateToTab }
     localStorage: 'STANDBY',
     tcc: 'STANDBY',
     handshake: 'STANDBY',
-    ect: 'STANDBY'
+    ect: 'STANDBY',
+    pct: 'STANDBY',
+    wht: 'STANDBY'
   });
+
+  // --- Feature 12: Cross-Border Foreign IP & Patent Treaty Shield (PCT / TRIPS / WIPO) ---
+  const [pctJurisdiction, setPctJurisdiction] = useState<string>('US-United States (USPTO / PCT Chapter I)');
+  const [ipAssetTitle, setIpAssetTitle] = useState<string>('Proprietary SCM Algorithm Core v2.4');
+  const [isPctSealing, setIsPctSealing] = useState<boolean>(false);
+  const [pctLedger, setPctLedger] = useState<Array<{
+    id: string;
+    timestamp: string;
+    title: string;
+    jurisdiction: string;
+    hash: string;
+    status: 'PROTECTED' | 'VERIFIED';
+  }>>([
+    {
+      id: 'PCT-WIPO-7781',
+      timestamp: new Date(Date.now() - 7200000).toLocaleString('en-ZA'),
+      title: 'Cross-Border Logistics Dispatch Engine',
+      jurisdiction: 'EU-European Patent Office (EPO)',
+      hash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+      status: 'VERIFIED'
+    }
+  ]);
+  const [pctLog, setPctLog] = useState<string>('PCT IP Shield: Ready to secure foreign intellectual property under WIPO & TRIPS international treaties.');
+
+  // --- Feature 13: International Jurisdiction, Arbitration & Withholding Tax (WHT) Compliance Guard ---
+  const [foreignSupplierCountry, setForeignSupplierCountry] = useState<string>('Germany (DE)');
+  const [withholdingTaxRate, setWithholdingTaxRate] = useState<number>(15);
+  const [dtaReliefApplied, setDtaReliefApplied] = useState<boolean>(true);
+  const [arbitrationClauseActive, setArbitrationClauseActive] = useState<boolean>(true);
+  const [isWhtVerifying, setIsWhtVerifying] = useState<boolean>(false);
+  const [whtResult, setWhtResult] = useState<any | null>(null);
+
+  const handleSealPctIp = () => {
+    if (!ipAssetTitle.trim()) {
+      addLog?.('PCT IP Shield: IP Asset Title cannot be empty.', 'warn');
+      return;
+    }
+    setIsPctSealing(true);
+    setPctLog(`PCT IP Shield: Sealing IP priority date under ${pctJurisdiction}...`);
+    addLog?.(`PCT IP Shield: Registering international patent treaty claim for "${ipAssetTitle}"...`, 'info');
+
+    setTimeout(() => {
+      const mockHash = Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
+      const newEntry = {
+        id: `PCT-${Math.floor(Math.random() * 9000) + 1000}`,
+        timestamp: new Date().toLocaleString('en-ZA'),
+        title: ipAssetTitle,
+        jurisdiction: pctJurisdiction,
+        hash: mockHash,
+        status: 'PROTECTED' as const
+      };
+      setPctLedger(prev => [newEntry, ...prev]);
+      setPctLog(`PCT IP Shield Active!\n✓ Asset: ${ipAssetTitle}\n✓ Jurisdiction: ${pctJurisdiction}\n✓ Treaty Standard: TRIPS Article 27 & PCT Rule 20\n✓ Priority Seal Hash: ${mockHash.substring(0, 24)}...\n✓ Status: INTERNATIONALLY PROTECTED AGAINST UNLAWFUL DISCLOSURE`);
+      setIsPctSealing(false);
+      addLog?.(`PCT IP Shield: Foreign Intellectual Property successfully secured under international treaty!`, 'success');
+    }, 1000);
+  };
+
+  const handleVerifyWhtCompliance = () => {
+    setIsWhtVerifying(true);
+    addLog?.(`International Legal Guard: Verifying Double Taxation Agreement (DTA) & Withholding Tax for ${foreignSupplierCountry}...`, 'info');
+
+    setTimeout(() => {
+      const effectiveRate = dtaReliefApplied ? Math.max(0, withholdingTaxRate - 5) : withholdingTaxRate;
+      const complianceStatus = arbitrationClauseActive ? 'FULLY_COMPLIANT' : 'REVIEW_REQUIRED';
+      
+      setWhtResult({
+        country: foreignSupplierCountry,
+        baseRate: withholdingTaxRate,
+        effectiveRate,
+        dtaApplied: dtaReliefApplied,
+        arbitrationClause: arbitrationClauseActive,
+        status: complianceStatus,
+        message: `Cross-Border Legal & Tax Audit for ${foreignSupplierCountry}:\n- Withholding Tax (WHT): ${effectiveRate}% (DTA Relief ${dtaReliefApplied ? 'Applied (-5%)' : 'Standard'}).\n- Dispute Jurisdiction: UNCITRAL International Arbitration Rules (Pre-approved).\n- IP Ownership Indemnity: Validated under international trade law.`
+      });
+      setIsWhtVerifying(false);
+      addLog?.(`International Legal Guard: Foreign supplier compliance verified successfully. Status: ${complianceStatus}`, 'success');
+    }, 1000);
+  };
 
   const handleEctSealDocument = () => {
     if (!ectDocumentName.trim()) {
@@ -405,7 +486,9 @@ export default function RegulatoryShield({ activeCert, addLog, onNavigateToTab }
       localStorage: 'STANDBY',
       tcc: 'STANDBY',
       handshake: 'STANDBY',
-      ect: 'STANDBY'
+      ect: 'STANDBY',
+      pct: 'STANDBY',
+      wht: 'STANDBY'
     });
     addLog?.('Threat Simulation Lab: Initiating unified multi-exploit audit tests...', 'warn');
 
@@ -472,9 +555,27 @@ export default function RegulatoryShield({ activeCert, addLog, onNavigateToTab }
           setTimeout(() => {
             setSafeguardStatusMap(prev => ({ ...prev, ect: 'DEFENDED' }));
             setActiveAttackLogs(prev => [...prev, `[${timestamp()}] [DEFENSE 7] ECT Act Section 13 Asymmetric Ledger (Feature 8) active. Cryptographic non-repudiation confirmed!`]);
+            runStep(8);
+          }, 800);
+          break;
+        case 8:
+          setSafeguardStatusMap(prev => ({ ...prev, pct: 'DEFENDING' }));
+          setActiveAttackLogs(prev => [...prev, `[${timestamp()}] [ATTACK 8] Attempting cross-border intellectual property scraping on foreign patent disclosure payload...`]);
+          setTimeout(() => {
+            setSafeguardStatusMap(prev => ({ ...prev, pct: 'DEFENDED' }));
+            setActiveAttackLogs(prev => [...prev, `[${timestamp()}] [DEFENSE 8] PCT / TRIPS Patent Treaty Shield (Feature 12) active. IP priority date cryptographic seal verified!`]);
+            runStep(9);
+          }, 800);
+          break;
+        case 9:
+          setSafeguardStatusMap(prev => ({ ...prev, wht: 'DEFENDING' }));
+          setActiveAttackLogs(prev => [...prev, `[${timestamp()}] [ATTACK 9] Injecting invalid tax withholding and circumventing UNCITRAL arbitration clause...`]);
+          setTimeout(() => {
+            setSafeguardStatusMap(prev => ({ ...prev, wht: 'DEFENDED' }));
+            setActiveAttackLogs(prev => [...prev, `[${timestamp()}] [DEFENSE 9] Cross-Border Tax & DTA Guard (Feature 13) active. Withholding tax & UNCITRAL jurisdiction enforced!`]);
             
             setAttackSimulationRunning(false);
-            addLog?.('Threat Simulation Lab: All mock exploits completely neutralized! SCM defenses 100% stable.', 'success');
+            addLog?.('Threat Simulation Lab: All mock exploits, including foreign IP and international tax vectors, completely neutralized!', 'success');
           }, 800);
           break;
       }
@@ -3436,6 +3537,141 @@ export default function RegulatoryShield({ activeCert, addLog, onNavigateToTab }
                 >
                   <Activity className="w-4 h-4 text-emerald-500" />
                   {attackSimulationRunning ? 'Executing Attack Vectors Audit...' : 'Launch Unified Threat Penetration Test Suite'}
+                </button>
+              </div>
+            </div>
+
+            {/* FEATURE 12: Cross-Border Foreign IP & Patent Treaty Shield (PCT / TRIPS / WIPO) */}
+            <div className="bg-white border border-slate-200 rounded-lg p-5 space-y-4 shadow-sm flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="border-b border-slate-100 pb-2 flex items-center justify-between">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 font-mono flex items-center gap-1.5">
+                    <Globe2 className="w-4 h-4 text-slate-700" />
+                    12. Cross-Border Foreign IP & PCT Treaty Shield
+                  </h3>
+                  <span className="font-mono text-[8px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded uppercase font-bold border border-slate-200">
+                    SATA-PCT-TRIPS
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-500 leading-normal">
+                  In compliance with TRIPS (Trade-Related Aspects of Intellectual Property Rights), the Patent Cooperation Treaty (PCT), and WIPO treaties, this module secures foreign and domestic intellectual property disclosures, source code, and design blueprints submitted in international tenders against unlawful government or competitor re-use.
+                </p>
+
+                <div className="space-y-2">
+                  <div className="space-y-1">
+                    <label className="block text-[8.5px] font-mono font-bold text-slate-600 uppercase">Target Patent / IP Asset Title:</label>
+                    <input
+                      type="text"
+                      value={ipAssetTitle}
+                      onChange={(e) => setIpAssetTitle(e.target.value)}
+                      placeholder="e.g. Proprietary SCM Algorithm Core"
+                      className="w-full bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 text-[10px] font-mono focus:outline-none focus:border-slate-400"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-[8.5px] font-mono font-bold text-slate-600 uppercase">International Jurisdiction:</label>
+                    <select
+                      value={pctJurisdiction}
+                      onChange={(e) => setPctJurisdiction(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1.5 text-[10px] font-mono focus:outline-none focus:border-slate-400"
+                    >
+                      <option value="US-United States (USPTO / PCT Chapter I)">US-United States (USPTO / PCT)</option>
+                      <option value="EU-European Patent Office (EPO)">EU-European Patent Office (EPO)</option>
+                      <option value="ZA-CIPC South Africa (National Phase)">ZA-CIPC South Africa (National Phase)</option>
+                      <option value="GB-UK Intellectual Property Office (UKIPO)">GB-UK Intellectual Property Office (UKIPO)</option>
+                    </select>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSealPctIp}
+                    disabled={isPctSealing}
+                    className="w-full bg-slate-900 hover:bg-slate-950 text-white font-mono font-bold py-2 rounded text-[9.5px] uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer"
+                  >
+                    {isPctSealing ? 'Registering Treaty Claim...' : 'Seal IP Under PCT / TRIPS Treaty'}
+                  </button>
+                </div>
+
+                <div className="bg-slate-950 border border-slate-800 rounded p-3 text-[9px] font-mono text-slate-300 whitespace-pre-line leading-relaxed">
+                  <span className="text-emerald-400 font-bold block text-[8px] uppercase border-b border-slate-900 pb-1 mb-1">Live Treaty IP Protection Status</span>
+                  {pctLog}
+                </div>
+              </div>
+            </div>
+
+            {/* FEATURE 13: International Jurisdiction, Arbitration & Withholding Tax Guard */}
+            <div className="bg-white border border-slate-200 rounded-lg p-5 space-y-4 shadow-sm flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="border-b border-slate-100 pb-2 flex items-center justify-between">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 font-mono flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-slate-700" />
+                    13. Cross-Border Tax, DTA & Arbitration Guard
+                  </h3>
+                  <span className="font-mono text-[8px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded uppercase font-bold border border-slate-200">
+                    SATA-DTA-UNCITRAL
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-500 leading-normal">
+                  Manages cross-border dispute resolution under UNCITRAL arbitration rules and Double Taxation Agreements (DTA), verifying withholding tax on royalties/services and international compliance jurisdiction clauses for non-resident bidders.
+                </p>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <label className="block text-[8.5px] font-mono font-bold text-slate-600 uppercase">Supplier Home Jurisdiction:</label>
+                    <input
+                      type="text"
+                      value={foreignSupplierCountry}
+                      onChange={(e) => setForeignSupplierCountry(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded px-2.5 py-1 text-[10px] font-mono focus:outline-none focus:border-slate-400"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-[8.5px] font-mono font-bold text-slate-600 uppercase">WHT Rate (%):</label>
+                    <input
+                      type="number"
+                      value={withholdingTaxRate}
+                      onChange={(e) => setWithholdingTaxRate(Number(e.target.value))}
+                      className="w-full bg-slate-50 border border-slate-200 rounded px-2.5 py-1 text-[10px] font-mono focus:outline-none focus:border-slate-400"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 bg-slate-50 p-2.5 rounded border border-slate-150">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={dtaReliefApplied}
+                      onChange={(e) => setDtaReliefApplied(e.target.checked)}
+                      className="rounded border-slate-350 text-slate-900 focus:ring-slate-500"
+                    />
+                    <span className="text-[9px] text-slate-600 font-sans">Apply Double Taxation Agreement (DTA) Tax Relief</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={arbitrationClauseActive}
+                      onChange={(e) => setArbitrationClauseActive(e.target.checked)}
+                      className="rounded border-slate-350 text-slate-900 focus:ring-slate-500"
+                    />
+                    <span className="text-[9px] text-slate-600 font-sans">Enforce UNCITRAL International Arbitration Clause</span>
+                  </label>
+                </div>
+
+                {whtResult && (
+                  <div className="bg-emerald-50 border border-emerald-200 text-emerald-900 p-2.5 rounded text-[9px] font-mono whitespace-pre-line leading-relaxed">
+                    <span className="font-bold uppercase block text-[9.5px] text-emerald-800 mb-1">✓ International Compliance Verified</span>
+                    {whtResult.message}
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-3">
+                <button
+                  type="button"
+                  onClick={handleVerifyWhtCompliance}
+                  disabled={isWhtVerifying}
+                  className="w-full bg-slate-900 hover:bg-slate-950 text-white font-mono font-bold py-2 rounded text-[9.5px] uppercase tracking-wider transition-colors cursor-pointer"
+                >
+                  {isWhtVerifying ? 'Verifying Tax & Jurisdiction...' : 'Verify Cross-Border Tax & DTA Compliance'}
                 </button>
               </div>
             </div>

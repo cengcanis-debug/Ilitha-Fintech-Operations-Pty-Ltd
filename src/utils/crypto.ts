@@ -356,6 +356,117 @@ Timestamp: ${timestampIso}`;
   }
 }
 
+// Verify signed PDF bytes and compare signature against public key corresponding to signing key using Web Crypto API
+export interface AdvancedSignatureVerificationResult {
+  status: 'valid' | 'invalid' | 'failed';
+  message: string;
+  details?: {
+    signedBy?: string;
+    organization?: string;
+    timestamp?: string;
+    documentHash?: string;
+    publicKeyPem?: string;
+    algorithm?: string;
+  };
+}
+
+export async function verifySignedPdfWithKey(
+  pdfBytes: ArrayBuffer,
+  expectedPublicKey?: CryptoKey | string
+): Promise<AdvancedSignatureVerificationResult> {
+  try {
+    const pdfDoc = await PDFDocument.load(pdfBytes);
+    const subject = pdfDoc.getSubject();
+
+    if (!subject || !subject.startsWith('SATA_SIG:')) {
+      return {
+        status: 'invalid',
+        message: 'No valid cryptographic signature envelope found in PDF metadata. The document is unsigned or was signed by an unrecognized system.'
+      };
+    }
+
+    const envelopeJson = subject.substring(9);
+    let envelope: any;
+    try {
+      envelope = JSON.parse(envelopeJson);
+    } catch (e) {
+      return {
+        status: 'failed',
+        message: 'Signature envelope metadata JSON is corrupt or unreadable.'
+      };
+    }
+
+    // Reconstruct pre-signed PDF bytes for cryptographic verification
+    const verifyDoc = await PDFDocument.load(pdfBytes);
+    verifyDoc.setSubject(`PreSignedBy:${envelope.signedBy}`);
+    const preSignedBytesVerify = await verifyDoc.save();
+
+    // Verify document hash integrity
+    const reCalculatedHash = await calculateSHA256(preSignedBytesVerify);
+    if (reCalculatedHash !== envelope.documentHash) {
+      return {
+        status: 'invalid',
+        message: 'Document integrity check failed. The visual or structural contents of this PDF were altered after digital signing.'
+      };
+    }
+
+    // Import public key from the signature envelope
+    const publicKey = await importKeyFromPem(envelope.publicKeyPem, 'public');
+
+    // If an expected public key or private key representation is provided, compare/verify against it
+    if (expectedPublicKey) {
+      let targetPublicKey = publicKey;
+      if (typeof expectedPublicKey === 'string') {
+        targetPublicKey = await importKeyFromPem(expectedPublicKey, 'public');
+      }
+      // If expectedPublicKey is CryptoKey (public key), check spki export match or thumbprint
+      const thumbprintEmbedded = await generateThumbprint(publicKey);
+      const thumbprintExpected = await generateThumbprint(targetPublicKey);
+      if (thumbprintEmbedded !== thumbprintExpected) {
+        return {
+          status: 'invalid',
+          message: 'The public key corresponding to the signing key does not match the public key embedded in this signed document.'
+        };
+      }
+    }
+
+    const signatureBuffer = base64ToArrayBuffer(envelope.signatureBase64);
+
+    // Cryptographic verification using Web Crypto API
+    const isValidSignature = await window.crypto.subtle.verify(
+      { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+      publicKey,
+      signatureBuffer,
+      preSignedBytesVerify
+    );
+
+    if (isValidSignature) {
+      return {
+        status: 'valid',
+        message: 'Digital signature is valid and cryptographically verified using Web Crypto API.',
+        details: {
+          signedBy: envelope.signedBy,
+          organization: envelope.organization,
+          timestamp: envelope.timestamp,
+          documentHash: envelope.documentHash,
+          publicKeyPem: envelope.publicKeyPem,
+          algorithm: 'RSA-2048 / SHA-256 (ECT Act Section 13)'
+        }
+      };
+    } else {
+      return {
+        status: 'invalid',
+        message: 'Cryptographic signature verification failed. The signature does not correspond to the document content or public key.'
+      };
+    }
+  } catch (err: any) {
+    return {
+      status: 'failed',
+      message: `Signature verification failed due to an unexpected error: ${err.message}`
+    };
+  }
+}
+
 // Verify a signed SBD PDF
 export async function verifySBDSignature(pdfBytes: ArrayBuffer): Promise<VerificationResult> {
   const result: VerificationResult = {

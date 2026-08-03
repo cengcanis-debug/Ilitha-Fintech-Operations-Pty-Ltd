@@ -212,6 +212,110 @@ export default function DirectoryHub({ activeCert, addLog, onNavigateToTab }: Di
         </div>
       </div>
 
+      {/* CLIENT PROFESSIONAL STEP-BY-STEP QUICK START GUIDE */}
+      <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-6">
+        <div className="border-b border-slate-100 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <span className="text-[10px] font-black font-mono text-emerald-700 uppercase tracking-widest block">Client Master Guide</span>
+            <h2 className="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+              <Compass className="w-5 h-5 text-slate-800" />
+              How to Navigate & Use SATA in 4 Easy Steps
+            </h2>
+          </div>
+          <span className="text-[10px] bg-slate-100 text-slate-700 font-mono font-bold py-1 px-3 rounded-md uppercase border border-slate-200">
+            Zero Learning Curve
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          
+          {/* Step 1 */}
+          <div 
+            onClick={() => onNavigateToTab('cert')}
+            className="bg-slate-50 hover:bg-emerald-50/40 border border-slate-200 hover:border-emerald-300 p-4 rounded-xl transition-all cursor-pointer space-y-2.5 group flex flex-col justify-between"
+          >
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="w-6 h-6 rounded-full bg-slate-900 text-white font-mono text-xs font-bold flex items-center justify-center group-hover:bg-emerald-600 transition-colors">1</span>
+                <span className="text-[9px] font-mono text-emerald-700 font-bold uppercase bg-emerald-100/70 px-1.5 py-0.5 rounded">Setup PKI</span>
+              </div>
+              <h3 className="text-xs font-extrabold text-slate-900 font-mono">Digital Certificate</h3>
+              <p className="text-[11px] text-slate-600 leading-normal">
+                Generate your RSA-2048 signing key pair under ECT Act Section 13 standards.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[9.5px] font-mono font-bold text-slate-500 group-hover:text-emerald-700">
+              <span>Go to: Cert Manager</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </div>
+          </div>
+
+          {/* Step 2 */}
+          <div 
+            onClick={() => onNavigateToTab('filler')}
+            className="bg-slate-50 hover:bg-emerald-50/40 border border-slate-200 hover:border-emerald-300 p-4 rounded-xl transition-all cursor-pointer space-y-2.5 group flex flex-col justify-between"
+          >
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="w-6 h-6 rounded-full bg-slate-900 text-white font-mono text-xs font-bold flex items-center justify-center group-hover:bg-emerald-600 transition-colors">2</span>
+                <span className="text-[9px] font-mono text-blue-700 font-bold uppercase bg-blue-100/70 px-1.5 py-0.5 rounded">Fill Forms</span>
+              </div>
+              <h3 className="text-xs font-extrabold text-slate-900 font-mono">SBD Form Filler</h3>
+              <p className="text-[11px] text-slate-600 leading-normal">
+                Complete SBD 4, SBD 6.1, SBD 8 & SBD 9 with automated B-BBEE 80/20 calculations.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[9.5px] font-mono font-bold text-slate-500 group-hover:text-emerald-700">
+              <span>Go to: SBD Filler</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </div>
+          </div>
+
+          {/* Step 3 */}
+          <div 
+            onClick={() => onNavigateToTab('audit')}
+            className="bg-slate-50 hover:bg-emerald-50/40 border border-slate-200 hover:border-emerald-300 p-4 rounded-xl transition-all cursor-pointer space-y-2.5 group flex flex-col justify-between"
+          >
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="w-6 h-6 rounded-full bg-slate-900 text-white font-mono text-xs font-bold flex items-center justify-center group-hover:bg-emerald-600 transition-colors">3</span>
+                <span className="text-[9px] font-mono text-indigo-700 font-bold uppercase bg-indigo-100/70 px-1.5 py-0.5 rounded">Audit & Sign</span>
+              </div>
+              <h3 className="text-xs font-extrabold text-slate-900 font-mono">Compliance Audit</h3>
+              <p className="text-[11px] text-slate-600 leading-normal">
+                Run automated pre-submission vulnerability scans and stamp cryptographic seals.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[9.5px] font-mono font-bold text-slate-500 group-hover:text-emerald-700">
+              <span>Go to: Compliance Audit</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </div>
+          </div>
+
+          {/* Step 4 */}
+          <div 
+            onClick={() => onNavigateToTab('tenders')}
+            className="bg-slate-50 hover:bg-emerald-50/40 border border-slate-200 hover:border-emerald-300 p-4 rounded-xl transition-all cursor-pointer space-y-2.5 group flex flex-col justify-between"
+          >
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="w-6 h-6 rounded-full bg-slate-900 text-white font-mono text-xs font-bold flex items-center justify-center group-hover:bg-emerald-600 transition-colors">4</span>
+                <span className="text-[9px] font-mono text-amber-700 font-bold uppercase bg-amber-100/70 px-1.5 py-0.5 rounded">Submit & Win</span>
+              </div>
+              <h3 className="text-xs font-extrabold text-slate-900 font-mono">Tender Feed & Pack</h3>
+              <p className="text-[11px] text-slate-600 leading-normal">
+                Browse live provincial tenders and download your complete sealed bundle for eTenders.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[9.5px] font-mono font-bold text-slate-500 group-hover:text-emerald-700">
+              <span>Go to: Tender Feed</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </div>
+          </div>
+
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* ONE-CLICK TENDER PACK MODULE */}
@@ -273,7 +377,7 @@ export default function DirectoryHub({ activeCert, addLog, onNavigateToTab }: Di
               <div className="space-y-1">
                 <h2 className="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
                   <Compass className="w-5 h-5 text-slate-800" />
-                  SATA Workspace Interactive Map
+                  SATA Workspace Interactive Map & Item List
                 </h2>
                 <p className="text-xs text-slate-500">
                   Quickly find and navigate to any of the 20 SATA tools and compliance components.
