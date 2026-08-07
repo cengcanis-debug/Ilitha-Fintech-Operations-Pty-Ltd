@@ -35,6 +35,7 @@ import {
   Wifi
 } from 'lucide-react';
 import { DigitalCertificate } from '../types';
+import { RateLimitCategory, getRateLimitStatuses, enforceRateLimit, resetRateLimitStore } from '../utils/rateLimiter';
 
 interface RegulatoryShieldProps {
   activeCert: DigitalCertificate | null;
@@ -321,6 +322,37 @@ export default function RegulatoryShield({ activeCert, addLog, onNavigateToTab }
       setIsWhtVerifying(false);
       addLog?.(`International Legal Guard: Foreign supplier compliance verified successfully. Status: ${complianceStatus}`, 'success');
     }, 1000);
+  };
+
+  // --- Feature 14: API Rate Limiting & Traffic Throttling Guard ---
+  const [rateLimitStatuses, setRateLimitStatuses] = useState(getRateLimitStatuses());
+  const [rateLimitLog, setRateLimitLog] = useState<string>('Rate Limit Shield: Active monitoring AI data, authentication, and public data endpoints.');
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setRateLimitStatuses(getRateLimitStatuses());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleTestRateLimitEndpoint = (category: RateLimitCategory) => {
+    try {
+      const result = enforceRateLimit(category);
+      setRateLimitStatuses(getRateLimitStatuses());
+      setRateLimitLog(`[SUCCESS] Endpoint [${category.toUpperCase()}] accessed successfully.\n- Remaining Quota: ${result.remaining}\n- Window Reset In: ${result.resetInSeconds}s`);
+      addLog?.(`Rate Limiter: Endpoint test allowed for ${category}. Remaining: ${result.remaining}`, 'success');
+    } catch (err: any) {
+      setRateLimitStatuses(getRateLimitStatuses());
+      setRateLimitLog(`[THROTTLED/BLOCKED] Endpoint [${category.toUpperCase()}] rejected.\n- Reason: ${err.message}`);
+      addLog?.(`Rate Limiter: Throttling triggered for ${category}: ${err.message}`, 'warn');
+    }
+  };
+
+  const handleResetRateLimits = () => {
+    resetRateLimitStore();
+    setRateLimitStatuses(getRateLimitStatuses());
+    setRateLimitLog('Rate Limit Shield: All counters and temporary blocks successfully reset.');
+    addLog?.('Rate Limiter: All quotas reset.', 'info');
   };
 
   const handleEctSealDocument = () => {
@@ -3672,6 +3704,69 @@ export default function RegulatoryShield({ activeCert, addLog, onNavigateToTab }
                   className="w-full bg-slate-900 hover:bg-slate-950 text-white font-mono font-bold py-2 rounded text-[9.5px] uppercase tracking-wider transition-colors cursor-pointer"
                 >
                   {isWhtVerifying ? 'Verifying Tax & Jurisdiction...' : 'Verify Cross-Border Tax & DTA Compliance'}
+                </button>
+              </div>
+            </div>
+
+            {/* FEATURE 14: API Rate Limiting & Traffic Throttling Guard */}
+            <div className="bg-white border border-slate-200 rounded-lg p-5 space-y-4 shadow-sm flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="border-b border-slate-100 pb-2 flex items-center justify-between">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 font-mono flex items-center gap-1.5">
+                    <Activity className="w-4 h-4 text-slate-700" />
+                    14. API Rate Limiting & Traffic Throttling Guard
+                  </h3>
+                  <span className="font-mono text-[8px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded uppercase font-bold border border-slate-200">
+                    SATA-THROTTLE-DEFENSE
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-500 leading-normal">
+                  Protects system resources and prevents DDoS or brute-force attacks by enforcing sliding-window rate limits across AI data endpoints, authentication endpoints, and public data endpoints.
+                </p>
+
+                <div className="space-y-2">
+                  {rateLimitStatuses.map((st) => (
+                    <div key={st.category} className="bg-slate-50 border border-slate-200 p-2.5 rounded space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono font-bold text-[9px] uppercase text-slate-800">
+                          {st.category === 'ai_data' ? '🤖 AI Data Endpoints' :
+                           st.category === 'auth' ? '🔐 Auth & Signing Endpoints' :
+                           '🌐 Public Data Endpoints'}
+                        </span>
+                        <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded font-bold ${
+                          st.isBlocked ? 'bg-red-100 text-red-700 border border-red-200' :
+                          'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                        }`}>
+                          {st.isBlocked ? 'THROTTLED / BLOCKED' : `${st.requestsCount}/${st.maxRequests} req`}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-[8.5px] text-slate-500 font-mono">
+                        <span>Window: {st.windowSeconds}s | Violations: {st.violationsCount}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleTestRateLimitEndpoint(st.category)}
+                          className="bg-slate-900 hover:bg-slate-950 text-white px-2 py-1 rounded font-mono text-[8px] uppercase tracking-wider cursor-pointer"
+                        >
+                          Simulate Call
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="bg-slate-950 border border-slate-800 rounded p-2.5 text-[9px] font-mono text-slate-300 whitespace-pre-line leading-relaxed">
+                  <span className="text-emerald-400 font-bold block text-[8px] uppercase border-b border-slate-900 pb-1 mb-1">Rate Limit Diagnostics Log</span>
+                  {rateLimitLog}
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={handleResetRateLimits}
+                  className="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 font-mono font-bold py-1.5 rounded text-[9px] uppercase tracking-wider transition-colors cursor-pointer"
+                >
+                  Reset All Rate Limit Quotas & Blocks
                 </button>
               </div>
             </div>
