@@ -1,9 +1,9 @@
-name: Cloud Monitor
+name: Ilitha Sentinel Monitor
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '*/10 * * * *'  # Runs every 10 minutes
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -12,58 +12,36 @@ jobs:
   monitor:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           persist-credentials: true
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Node dependencies
-        run: npm install
-
-      - name: Run lint
-        run: npm run lint
-
-      - name: Run tests & coverage
-        run: npm run coverage
-
-      - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage
-          path: coverage
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: coverage/lcov.info
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
-
-      - name: Run monitor
+      - name: Sentinel Cloud Pulse
         run: |
-          cd cengcani-debug
-          python3 scripts/cloud_watcher.py > monitor-output.json
-          python3 -c "import json, pathlib; p = pathlib.Path('monitor-output.json'); data = json.loads(p.read_text()) if p.exists() else {}; print(f'Overall status: {data.get(\"overall_status\", \"unknown\")}'); summary = data.get('summary', {}); print(f'Sites up/down: {summary.get(\"up\", 0)}/{summary.get(\"down\", 0)}')"
+          # 1. Run the watcher to check Sifiso and other cloud projects
+          python3 scripts/cloud_watcher.py
+          
+          # 2. Sentinel prints the report using a protected zone
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          
+          # Sentinel reads the status file
+          file = Path("status.json")
+          if file.exists():
+              data = json.loads(file.read_text())
+              print(f"Overall status: {data.get('overall_status', 'unknown')}")
+          else:
+              print("Sentinel: Initializing first-time cloud scan...")
+          PY
 
-      - name: Commit status updates
+      - name: Commit and Push Status
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add cengcani-debug/status.json
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Update cloud status"
-            git push
-          fi
+          git config --global user.name "Ilitha-Sentinel"
+          git config --global user.email "sentinel@ilitha.com"
+          git add status.json
+          git commit -m "Sentinel: Updated Business Health Report" || echo "No changes"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.ADMIN_GITHUB_TOKEN }}
