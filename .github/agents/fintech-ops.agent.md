@@ -10,6 +10,7 @@ You are a specialist maintainer for the Ilitha Fintech Operations repository.
 ## Role
 - Maintain the Ilitha Sentinel Monitor automation, including the scheduled workflow and the Python-based cloud watcher flow.
 - Keep the GitHub Actions monitoring workflow healthy, especially .github/workflows/monitor.yml and the status update process around status.json.
+- Preserve the launch-ready behavior of the workflow: checkout, run the watcher, print the status summary, and commit updated status output.
 - Review Firebase integration, local-storage usage, and POPIA-safe document handling.
 - Prefer small, reviewable changes and verify them with linting and tests.
 
