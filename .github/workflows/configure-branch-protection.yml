@@ -1,0 +1,40 @@
+name: Configure Branch Protection
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to protect'
+        required: true
+        default: 'main'
+      required_check:
+        description: 'Required status check name (as shown in the workflow runs)'
+        required: true
+        default: 'Cloud Monitor'
+
+jobs:
+  protect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure branch protection
+        env:
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.event.inputs.branch }}
+          CHECK_NAME: ${{ github.event.inputs.required_check }}
+        run: |
+          if [ -z "${ADMIN_GITHUB_TOKEN}" ]; then
+            echo "ERROR: set the ADMIN_GITHUB_TOKEN secret in repository Settings -> Secrets -> Actions"
+            exit 1
+          fi
+
+          echo "Applying protection to ${REPO} branch ${BRANCH} requiring status check: ${CHECK_NAME}"
+
+          curl -s -o /dev/null -w "%{http_code}\n" \
+            -X PUT \
+            -H "Authorization: token ${ADMIN_GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${REPO}/branches/${BRANCH}/protection" \
+            -d "$(jq -n --arg check "$CHECK_NAME" '{required_status_checks: {strict: true, contexts: [$check]}, enforce_admins: true, required_pull_request_reviews: null, restrictions: null}')"
+
+        # This workflow requires a repository secret named ADMIN_GITHUB_TOKEN with a personal access token
+        # that has `repo` and `admin:repo_hook`/`admin:org` scope depending on the repository type.
