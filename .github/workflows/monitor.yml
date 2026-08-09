@@ -17,7 +17,13 @@ jobs:
         with:
           persist-credentials: true
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - name: Sentinel Cloud Pulse
+        working-directory: cengcani-debug
         run: |
           # 1. Run the watcher to check Sifiso and other cloud projects
           python3 scripts/cloud_watcher.py
@@ -40,7 +46,7 @@ jobs:
         run: |
           git config --global user.name "Ilitha-Sentinel"
           git config --global user.email "sentinel@ilitha.com"
-          git add status.json
+          git add cengcani-debug/status.json
           git commit -m "Sentinel: Updated Business Health Report" || echo "No changes"
           git push
         env:
