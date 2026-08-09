@@ -1,0 +1,46 @@
+{
+  "generated_at": "2026-08-09T05:37:43.707812+00:00",
+  "overall_status": "up",
+  "summary": {
+    "total": 5,
+    "up": 5,
+    "down": 0
+  },
+  "sites": [
+    {
+      "name": "Primary Cloud",
+      "url": "https://example.com",
+      "status": "up",
+      "http_code": 200,
+      "message": "reachable"
+    },
+    {
+      "name": "Secondary Cloud",
+      "url": "https://www.wikipedia.org",
+      "status": "up",
+      "http_code": 200,
+      "message": "reachable"
+    },
+    {
+      "name": "Tertiary Cloud",
+      "url": "https://jsonplaceholder.typicode.com",
+      "status": "up",
+      "http_code": 200,
+      "message": "reachable"
+    },
+    {
+      "name": "Quaternary Cloud",
+      "url": "https://www.cloudflare.com",
+      "status": "up",
+      "http_code": 200,
+      "message": "reachable"
+    },
+    {
+      "name": "Quinary Cloud",
+      "url": "https://www.google.com",
+      "status": "up",
+      "http_code": 200,
+      "message": "reachable"
+    }
+  ]
+}

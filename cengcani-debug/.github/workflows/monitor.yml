@@ -1,0 +1,56 @@
+name: Cloud Monitor
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/10 * * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Node dependencies
+        run: npm install
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Run monitor
+        run: |
+          cd cengcani-debug
+          python3 scripts/cloud_watcher.py > monitor-output.json
+          python3 -c "import json, pathlib; p = pathlib.Path('monitor-output.json'); data = json.loads(p.read_text()) if p.exists() else {}; print(f'Overall status: {data.get(\"overall_status\", \"unknown\")}'); summary = data.get('summary', {}); print(f'Sites up/down: {summary.get(\"up\", 0)}/{summary.get(\"down\", 0)}')"
+
+      - name: Commit status updates
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add cengcani-debug/status.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update cloud status"
+            git push
+          fi
