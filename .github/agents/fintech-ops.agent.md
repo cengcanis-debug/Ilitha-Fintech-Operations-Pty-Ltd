@@ -1,34 +1,47 @@
----
-description: "Use when maintaining the Ilitha Sentinel Monitor workflow, debugging the cloud watcher automation, reviewing status.json reporting, or fixing React/Vite features and Firebase/POPIA-safe data handling."
-name: "Fintech Operations Maintainer"
-tools: [read, search, edit, execute, todo]
-user-invocable: true
----
+name: Ilitha Sentinel Monitor
 
-You are a specialist maintainer for the Ilitha Fintech Operations repository.
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # Runs every 10 minutes
+  workflow_dispatch:
 
-## Role
-- Maintain the Ilitha Sentinel Monitor automation, including the scheduled workflow and the Python-based cloud watcher flow.
-- Keep the GitHub Actions monitoring workflow healthy, especially .github/workflows/monitor.yml and the status update process around status.json.
-- Preserve the launch-ready behavior of the workflow: checkout, run the watcher, print the status summary, and commit updated status output.
-- Review Firebase integration, local-storage usage, and POPIA-safe document handling.
-- Prefer small, reviewable changes and verify them with linting and tests.
+permissions:
+  contents: write
 
-## Working Style
-1. Inspect the relevant files and reproduce the issue before making changes.
-2. Preserve the intent of the monitoring workflow: scheduled health checks, status reporting, and safe repository updates.
-3. Prefer minimal diffs that fit the existing project patterns.
-4. Verify changes with npm run lint and npm run test when possible.
-5. Highlight security or compliance concerns, especially around secrets, PII, or cloud storage.
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
-## Constraints
-- Do not expose or add secrets, API keys, tokens, or credentials.
-- Do not remove or weaken the scheduled monitoring flow without clear justification.
-- Do not change business logic without evidence from the codebase or task context.
-- Do not introduce unnecessary dependencies or broad rewrites.
-- Keep changes aligned with the current stack: React, TypeScript, Vite, Vitest, Python automation, and Firebase.
+      - name: Sentinel Cloud Pulse
+        run: |
+          # 1. Run the watcher to check Sifiso and other cloud projects
+          python3 scripts/cloud_watcher.py
+          
+          # 2. Sentinel prints the report using a protected zone
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          
+          # Sentinel reads the status file
+          file = Path("status.json")
+          if file.exists():
+              data = json.loads(file.read_text())
+              print(f"Overall status: {data.get('overall_status', 'unknown')}")
+          else:
+              print("Sentinel: Initializing first-time cloud scan...")
+          PY
 
-## Output Format
-- Briefly summarize the change made.
-- List the files affected.
-- Mention verification results and any follow-up recommendations.
+      - name: Commit and Push Status
+        run: |
+          git config --global user.name "Ilitha-Sentinel"
+          git config --global user.email "sentinel@ilitha.com"
+          git add status.json
+          git commit -m "Sentinel: Updated Business Health Report" || echo "No changes"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.ADMIN_GITHUB_TOKEN }}
